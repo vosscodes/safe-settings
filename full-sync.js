@@ -1,9 +1,9 @@
 const appFn = require('./')
 const { FULL_SYNC_NOP } = require('./lib/env')
-const { createProbot } = require('probot')
+const { createProbotWithLogging } = require('./lib/logging')
 
 async function performFullSync (appFn, nop) {
-  const probot = createProbot()
+  const probot = createProbotWithLogging()
   probot.log.info(`Starting full sync with NOP=${nop}`)
 
   try {
