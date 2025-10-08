@@ -2,7 +2,6 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
 const cron = require('node-cron')
-const Glob = require('./lib/glob')
 const ConfigManager = require('./lib/configManager')
 const NopCommand = require('./lib/nopcommand')
 const env = require('./lib/env')

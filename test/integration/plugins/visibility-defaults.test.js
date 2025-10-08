@@ -1,5 +1,3 @@
-const path = require('path')
-const fs = require('fs')
 const { OK } = require('http-status-codes')
 const any = require('@travi/any')
 const settings = require('../../../lib/settings')
