@@ -191,6 +191,24 @@
       "items": {
         "$ref": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.2022-11-28.json#/paths/~1orgs~1{org}~1rulesets/post/requestBody/content/application~1json/schema"
       }
+    },
+    "defaults": {
+      "description": "Default settings applied based on repository visibility",
+      "type": "object",
+      "properties": {
+        "public": {
+          "description": "Settings applied to public repositories",
+          "type": "object"
+        },
+        "internal": {
+          "description": "Settings applied to internal repositories (GitHub Enterprise Cloud/Server 2.20+ only)",
+          "type": "object"
+        },
+        "private": {
+          "description": "Settings applied to private repositories",
+          "type": "object"
+        }
+      }
     }
   }
 }

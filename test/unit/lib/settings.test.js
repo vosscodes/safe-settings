@@ -16,9 +16,9 @@ describe('Settings Tests', () => {
   let mockSubOrg
   let subOrgConfig
 
-  function createSettings(config) {
+  function createSettings (config) {
     const settings = new Settings(false, stubContext, mockRepo, config, mockRef, mockSubOrg)
-    return settings;
+    return settings
   }
 
   beforeEach(() => {
@@ -51,7 +51,7 @@ repository:
   # A comma-separated list of topics to set on the repository
   topics:
   - frontend
-     `).toString('base64');
+     `).toString('base64')
     mockOctokit.repos = {
       getContent: jest.fn().mockResolvedValue({ data: { content } })
     }
@@ -81,8 +81,6 @@ repository:
         })
       }
     }
-
-
 
     mockRepo = { owner: 'test', repo: 'test-repo' }
     mockRef = 'main'
@@ -264,14 +262,13 @@ repository:
             - frontend
 
           `)
-
       })
 
       it("Should load configMap for suborgs'", async () => {
-        //mockSubOrg = jest.fn().mockReturnValue(['suborg1', 'suborg2'])
+        // mockSubOrg = jest.fn().mockReturnValue(['suborg1', 'suborg2'])
         mockSubOrg = undefined
         settings = createSettings(stubConfig)
-        jest.spyOn(settings, 'loadConfigMap').mockImplementation(() => [{ name: "frontend", path: ".github/suborgs/frontend.yml" }])
+        jest.spyOn(settings, 'loadConfigMap').mockImplementation(() => [{ name: 'frontend', path: '.github/suborgs/frontend.yml' }])
         jest.spyOn(settings, 'loadYaml').mockImplementation(() => subOrgConfig)
         jest.spyOn(settings, 'getReposForTeam').mockImplementation(() => [{ name: 'repo-test' }])
         jest.spyOn(settings, 'getSubOrgRepositories').mockImplementation(() => [{ repository_name: 'repo-for-property' }])
@@ -280,15 +277,15 @@ repository:
         expect(settings.loadConfigMap).toHaveBeenCalledTimes(1)
 
         // Get own properties of subOrgConfigs
-        const ownProperties = Object.getOwnPropertyNames(subOrgConfigs);
+        const ownProperties = Object.getOwnPropertyNames(subOrgConfigs)
         expect(ownProperties.length).toEqual(3)
       })
 
       it("Should throw an error when a repo is found in multiple suborgs configs'", async () => {
-        //mockSubOrg = jest.fn().mockReturnValue(['suborg1', 'suborg2'])
+        // mockSubOrg = jest.fn().mockReturnValue(['suborg1', 'suborg2'])
         mockSubOrg = undefined
         settings = createSettings(stubConfig)
-        jest.spyOn(settings, 'loadConfigMap').mockImplementation(() => [{ name: "frontend", path: ".github/suborgs/frontend.yml" }, { name: "backend", path: ".github/suborgs/backend.yml" }])
+        jest.spyOn(settings, 'loadConfigMap').mockImplementation(() => [{ name: 'frontend', path: '.github/suborgs/frontend.yml' }, { name: 'backend', path: '.github/suborgs/backend.yml' }])
         jest.spyOn(settings, 'loadYaml').mockImplementation(() => subOrgConfig)
         jest.spyOn(settings, 'getReposForTeam').mockImplementation(() => [{ name: 'repo-test' }])
         jest.spyOn(settings, 'getSubOrgRepositories').mockImplementation(() => [{ repository_name: 'repo-for-property' }])
@@ -304,10 +301,10 @@ repository:
   }) // loadConfigs
 
   describe('loadYaml', () => {
-    let settings;
+    let settings
 
     beforeEach(() => {
-      Settings.fileCache = {};
+      Settings.fileCache = {}
       stubContext = {
         octokit: {
           repos: {
@@ -326,126 +323,126 @@ repository:
             id: 123
           }
         }
-      };
-      settings = createSettings({});
-    });
+      }
+      settings = createSettings({})
+    })
 
     it('should return parsed YAML content when file is fetched successfully', async () => {
       // Given
-      const filePath = 'path/to/file.yml';
-      const content = Buffer.from('key: value').toString('base64');
+      const filePath = 'path/to/file.yml'
+      const content = Buffer.from('key: value').toString('base64')
       jest.spyOn(settings.github.repos, 'getContent').mockResolvedValue({
         data: { content },
         headers: { etag: 'etag123' }
-      });
+      })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toEqual({ key: 'value' });
+      expect(result).toEqual({ key: 'value' })
       expect(Settings.fileCache[`${mockRepo.owner}/${filePath}`]).toEqual({
         etag: 'etag123',
         data: { content }
-      });
-    });
+      })
+    })
 
     it('should return cached content when file has not changed (304 response)', async () => {
       // Given
-      const filePath = 'path/to/file.yml';
-      const content = Buffer.from('key: value').toString('base64');
-      Settings.fileCache[`${mockRepo.owner}/${filePath}`] = { etag: 'etag123', data: { content } };
-      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue({ status: 304 });
+      const filePath = 'path/to/file.yml'
+      const content = Buffer.from('key: value').toString('base64')
+      Settings.fileCache[`${mockRepo.owner}/${filePath}`] = { etag: 'etag123', data: { content } }
+      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue({ status: 304 })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toEqual({ key: 'value' });
+      expect(result).toEqual({ key: 'value' })
       expect(settings.github.repos.getContent).toHaveBeenCalledWith(
         expect.objectContaining({ headers: { 'If-None-Match': 'etag123' } })
-      );
-    });
+      )
+    })
 
     it('should not return cached content when the cache is for another org', async () => {
       // Given
-      const filePath = 'path/to/file.yml';
-      const content = Buffer.from('key: value').toString('base64');
-      const wrongContent = Buffer.from('wrong: content').toString('base64');
-      Settings.fileCache['another-org/path/to/file.yml'] = { etag: 'etag123', data: { wrongContent } };
+      const filePath = 'path/to/file.yml'
+      const content = Buffer.from('key: value').toString('base64')
+      const wrongContent = Buffer.from('wrong: content').toString('base64')
+      Settings.fileCache['another-org/path/to/file.yml'] = { etag: 'etag123', data: { wrongContent } }
       jest.spyOn(settings.github.repos, 'getContent').mockResolvedValue({
         data: { content },
         headers: { etag: 'etag123' }
-      });
+      })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toEqual({ key: 'value' });
+      expect(result).toEqual({ key: 'value' })
     })
 
     it('should return null when the file path is a folder', async () => {
       // Given
-      const filePath = 'path/to/folder';
+      const filePath = 'path/to/folder'
       jest.spyOn(settings.github.repos, 'getContent').mockResolvedValue({
         data: []
-      });
+      })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toBeNull();
-    });
+      expect(result).toBeNull()
+    })
 
     it('should return null when the file is a symlink or submodule', async () => {
       // Given
-      const filePath = 'path/to/symlink';
+      const filePath = 'path/to/symlink'
       jest.spyOn(settings.github.repos, 'getContent').mockResolvedValue({
         data: { content: null }
-      });
+      })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toBeUndefined();
-    });
+      expect(result).toBeUndefined()
+    })
 
     it('should handle 404 errors gracefully and return null', async () => {
       // Given
-      const filePath = 'path/to/nonexistent.yml';
-      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue({ status: 404 });
+      const filePath = 'path/to/nonexistent.yml'
+      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue({ status: 404 })
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toBeNull();
-    });
+      expect(result).toBeNull()
+    })
 
     it('should throw an error for non-404 exceptions when not in nop mode', async () => {
       // Given
-      const filePath = 'path/to/error.yml';
-      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue(new Error('Unexpected error'));
+      const filePath = 'path/to/error.yml'
+      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue(new Error('Unexpected error'))
 
       // When / Then
-      await expect(settings.loadYaml(filePath)).rejects.toThrow('Unexpected error');
-    });
+      await expect(settings.loadYaml(filePath)).rejects.toThrow('Unexpected error')
+    })
 
     it('should log and append NopCommand for non-404 exceptions in nop mode', async () => {
       // Given
-      const filePath = 'path/to/error.yml';
-      settings.nop = true;
-      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue(new Error('Unexpected error'));
-      jest.spyOn(settings, 'appendToResults');
+      const filePath = 'path/to/error.yml'
+      settings.nop = true
+      jest.spyOn(settings.github.repos, 'getContent').mockRejectedValue(new Error('Unexpected error'))
+      jest.spyOn(settings, 'appendToResults')
 
       // When
-      const result = await settings.loadYaml(filePath);
+      const result = await settings.loadYaml(filePath)
 
       // Then
-      expect(result).toBeUndefined();
+      expect(result).toBeUndefined()
       expect(settings.appendToResults).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -455,7 +452,95 @@ repository:
             })
           })
         ])
-      );
-    });
-  });
+      )
+    })
+  })
+
+  describe('getVisibilityDefaults', () => {
+    beforeEach(() => {
+      stubConfig = {
+        defaults: {
+          public: {
+            teams: [{ name: 'everyone', permission: 'push' }]
+          },
+          internal: {
+            teams: [{ name: 'employees', permission: 'push' }]
+          },
+          private: {
+            teams: [{ name: 'core', permission: 'admin' }]
+          }
+        }
+      }
+    })
+
+    it('Returns public defaults for public repository', () => {
+      const settings = createSettings(stubConfig)
+      const repo = { repo: 'test-repo', visibility: 'public' }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toEqual({
+        teams: [{ name: 'everyone', permission: 'push' }]
+      })
+    })
+
+    it('Returns internal defaults for internal repository', () => {
+      const settings = createSettings(stubConfig)
+      const repo = { repo: 'test-repo', visibility: 'internal' }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toEqual({
+        teams: [{ name: 'employees', permission: 'push' }]
+      })
+    })
+
+    it('Returns private defaults for private repository', () => {
+      const settings = createSettings(stubConfig)
+      const repo = { repo: 'test-repo', visibility: 'private' }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toEqual({
+        teams: [{ name: 'core', permission: 'admin' }]
+      })
+    })
+
+    it('Falls back to private field when visibility not present', () => {
+      const settings = createSettings(stubConfig)
+      const repo = { repo: 'test-repo', private: true }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toEqual({
+        teams: [{ name: 'core', permission: 'admin' }]
+      })
+    })
+
+    it('Falls back to public when private is false and no visibility', () => {
+      const settings = createSettings(stubConfig)
+      const repo = { repo: 'test-repo', private: false }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toEqual({
+        teams: [{ name: 'everyone', permission: 'push' }]
+      })
+    })
+
+    it('Returns undefined when no defaults configured', () => {
+      const settings = createSettings({})
+      const repo = { repo: 'test-repo', visibility: 'public' }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toBeUndefined()
+    })
+
+    it('Returns undefined when visibility has no defaults', () => {
+      const settings = createSettings({
+        defaults: {
+          public: { teams: [{ name: 'everyone', permission: 'push' }] }
+        }
+      })
+      const repo = { repo: 'test-repo', visibility: 'private' }
+      const defaults = settings.getVisibilityDefaults(repo)
+
+      expect(defaults).toBeUndefined()
+    })
+  })
 }) // Settings Tests

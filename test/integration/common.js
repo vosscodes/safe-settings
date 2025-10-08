@@ -60,8 +60,10 @@ function buildRepositoryCreatedEvent () {
   }
 }
 
-function buildTriggerEvent () {
-  return any.fromList([buildPushEvent(), buildRepositoryCreatedEvent(), buildRepositoryEditedEvent()])
+function buildTriggerEvent (repo = repository) {
+  const event = any.fromList([buildPushEvent(), buildRepositoryCreatedEvent(), buildRepositoryEditedEvent()])
+  event.payload.repository = repo
+  return event
 }
 
 module.exports = {

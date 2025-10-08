@@ -2,6 +2,24 @@
 
 # This is the settings that need to be applied to all repositories in the org
 # See https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#create-an-organization-repository for all available settings for a repository
+
+# Visibility-based defaults: apply different settings based on repository visibility
+# Merge order: base repository config → visibility defaults → suborg config → repo-specific config
+defaults:
+  public:
+    # Settings applied only to public repositories
+    teams:
+      - name: everyone
+        permission: push
+  internal:
+    # Settings applied only to internal repositories (GitHub Enterprise Cloud/Server 2.20+ only)
+    teams:
+      - name: employees
+        permission: push
+  private:
+    # Settings applied only to private repositories
+    # Leave empty or omit if no special defaults needed for private repos
+
 repository:
   # A short description of the repository that will show up on GitHub
   description: description of the repo
