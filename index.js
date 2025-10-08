@@ -5,10 +5,27 @@ const cron = require('node-cron')
 const ConfigManager = require('./lib/configManager')
 const NopCommand = require('./lib/nopcommand')
 const env = require('./lib/env')
+const { shouldIgnoreHealthCheck } = require('./lib/healthcheck-filter')
 
 let deploymentConfig
 
 module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) => {
+  // Filter out ELB health check logs at info level
+  const originalLog = robot.log
+  robot.log = new Proxy(originalLog, {
+    get (target, prop) {
+      if (prop === 'info' || prop === 'debug' || prop === 'trace') {
+        return function (...args) {
+          const firstArg = args[0]
+          if (typeof firstArg === 'object' && firstArg?.req && shouldIgnoreHealthCheck(firstArg.req)) {
+            return
+          }
+          return target[prop](...args)
+        }
+      }
+      return target[prop]
+    }
+  })
   let appSlug = 'safe-settings'
   async function syncAllSettings (nop, context, repo = context.repo(), ref) {
     try {
